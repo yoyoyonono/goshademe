@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GoShademe</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .campaign {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+      form {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      input,
+      button {
+        padding: 8px;
+      }
+      .status {
+        margin-top: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>GoShademe</h1>
+    <p>Basic crowdfunding MVP with pluggable payment processor backend.</p>
+    <div id="campaigns"></div>
+    <p class="status" id="status"></p>
+
+    <script>
+      async function loadCampaigns() {
+        const response = await fetch('/api/campaigns')
+        const data = await response.json()
+        const container = document.getElementById('campaigns')
+        container.innerHTML = ''
+
+        data.campaigns.forEach((campaign) => {
+          const card = document.createElement('div')
+          card.className = 'campaign'
+          card.innerHTML = `
+            <h2>${campaign.title}</h2>
+            <p>${campaign.description}</p>
+            <p><strong>Raised:</strong> $${campaign.raised} / $${campaign.goal}</p>
+            <form data-campaign-id="${campaign.id}">
+              <input name="donorName" placeholder="Your name (optional)" />
+              <input name="amount" type="number" min="1" step="1" required placeholder="Amount" />
+              <button type="submit">Donate</button>
+            </form>
+          `
+
+          const form = card.querySelector('form')
+          form.addEventListener('submit', async (event) => {
+            event.preventDefault()
+            const formData = new FormData(form)
+            const body = {
+              campaignId: form.dataset.campaignId,
+              donorName: formData.get('donorName') || 'Anonymous',
+              amount: Number(formData.get('amount')),
+              currency: 'USD'
+            }
+
+            const donationResponse = await fetch('/api/donations', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(body)
+            })
+
+            const donationData = await donationResponse.json()
+            const status = document.getElementById('status')
+            if (!donationResponse.ok) {
+              status.textContent = donationData.error || 'Donation failed'
+              return
+            }
+
+            status.textContent = `Thank you! Transaction ${donationData.payment.transactionId}`
+            loadCampaigns()
+          })
+
+          container.appendChild(card)
+        })
+      }
+
+      loadCampaigns()
+    </script>
+  </body>
+</html>
