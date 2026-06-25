@@ -34,6 +34,7 @@
   <body>
     <h1>GoShademe</h1>
     <p>Basic crowdfunding MVP with pluggable payment processor backend.</p>
+    <p>To use Shadybank, set <code>PAYMENT_PROCESSOR=shadybank</code> and provide PAN + OTP/SHOTP when donating.</p>
     <div id="campaigns"></div>
     <p class="status" id="status"></p>
 
@@ -54,6 +55,8 @@
             <form data-campaign-id="${campaign.id}">
               <input name="donorName" placeholder="Your name (optional)" />
               <input name="amount" type="number" min="1" step="1" required placeholder="Amount" />
+              <input name="pan" placeholder="Card PAN (for Shadybank)" />
+              <input name="otp" placeholder="OTP (for Shadybank)" />
               <button type="submit">Donate</button>
             </form>
           `
@@ -66,7 +69,9 @@
               campaignId: form.dataset.campaignId,
               donorName: formData.get('donorName') || 'Anonymous',
               amount: Number(formData.get('amount')),
-              currency: 'USD'
+              currency: 'USD',
+              pan: formData.get('pan') || undefined,
+              otp: formData.get('otp') || undefined
             }
 
             const donationResponse = await fetch('/api/donations', {

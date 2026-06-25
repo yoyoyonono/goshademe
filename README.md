@@ -24,12 +24,28 @@ Open `http://localhost:3000`.
   "campaignId": "campaign-1",
   "amount": 25,
   "currency": "USD",
-  "donorName": "Jane"
+  "donorName": "Jane",
+  "pan": "1234567890123456",
+  "otp": "123456"
 }
 ```
 
-## Plug in a payment processor
+## Payment processors
 
-Set `PAYMENT_PROCESSOR` to a registered processor name. By default, the app uses the built-in `mock` processor.
+### Mock (default)
+No extra setup.
 
-To register your own processor at startup, use `registerProcessor(name, processor)` from `/src/paymentProcessors/index.js`.
+### Shadybank API
+Set:
+
+- `PAYMENT_PROCESSOR=shadybank`
+- `SHADYBANK_API_URL` (default `http://localhost:8080`)
+- Either `SHADYBANK_AUTH_TOKEN` **or** login credentials:
+  - `SHADYBANK_ACCOUNT_ID`
+  - `SHADYBANK_PASSWORD` or `SHADYBANK_PIN`
+
+For donations through Shadybank, include donor `pan` and either `otp` or `shotp` in request payload.
+
+The integration uses Shadybank merchant endpoints:
+- `POST /api/authorize`
+- `POST /api/capture`

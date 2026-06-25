@@ -35,7 +35,7 @@ function createApp() {
 
   app.post('/api/donations', async (req, res) => {
     try {
-      const { campaignId, amount, currency = 'USD', donorName = 'Anonymous' } = req.body || {}
+      const { campaignId, amount, currency = 'USD', donorName = 'Anonymous', pan, otp, shotp } = req.body || {}
       const campaign = campaigns.find((item) => item.id === campaignId)
 
       if (!campaign) {
@@ -52,7 +52,10 @@ function createApp() {
         campaignId,
         amount: numericAmount,
         currency,
-        donorName
+        donorName,
+        pan,
+        otp,
+        shotp
       })
 
       campaign.raised += numericAmount

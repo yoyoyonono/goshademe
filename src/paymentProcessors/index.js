@@ -1,7 +1,9 @@
 const mockProcessor = require('./mockProcessor')
+const shadybankProcessor = require('./shadybankProcessor')
 
 const processors = {
-  mock: mockProcessor
+  mock: mockProcessor,
+  shadybank: shadybankProcessor
 }
 
 function getProcessor(name = process.env.PAYMENT_PROCESSOR || 'mock') {
